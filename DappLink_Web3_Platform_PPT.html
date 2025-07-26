@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DappLink-构建 Web3 中间件，赋能区块未来，帮助企业和开发者快速落地项目</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-green: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-accent: #94a3b8;
+            --text-muted: #64748b;
+            --border-primary: #334155;
+            --border-accent: rgba(59, 130, 246, 0.3);
+            --shadow-light: rgba(0, 0, 0, 0.3);
+            --shadow-medium: rgba(0, 0, 0, 0.5);
+            --shadow-heavy: rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #0c1426 50%, var(--bg-secondary) 100%);
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        /* 代码漂浮背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* 中文文字漂浮背景 */
+        .floating-text {
+            position: fixed;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            pointer-events: auto;
+            z-index: 1;
+            opacity: 0;
+            white-space: nowrap;
+            text-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-text:hover {
+            transform: scale(1.1) !important;
+            text-shadow: 0 0 20px currentColor;
+            animation-play-state: paused !important;
+        }
+
+        .floating-text.paused {
+            animation-play-state: paused !important;
+        }
+
+        .floating-text:nth-child(1) {
+            top: 8%;
+            left: -350px;
+            color: rgba(59, 130, 246, 1);
+            animation: textFloatRight 12s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+
+        .floating-text:nth-child(2) {
+            top: 18%;
+            right: -400px;
+            color: rgba(16, 185, 129, 1);
+            animation: textFloatLeft 14s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        .floating-text:nth-child(3) {
+            top: 28%;
+            left: -380px;
+            color: rgba(6, 182, 212, 1);
+            animation: textFloatRight 13s ease-in-out infinite;
+            animation-delay: 4s;
+        }
+
+        .floating-text:nth-child(4) {
+            top: 38%;
+            right: -420px;
+            color: rgba(139, 92, 246, 1);
+            animation: textFloatLeft 11s ease-in-out infinite;
+            animation-delay: 6s;
+        }
+
+        .floating-text:nth-child(5) {
+            top: 48%;
+            left: -360px;
+            color: rgba(244, 63, 94, 1);
+            animation: textFloatRight 15s ease-in-out infinite;
+            animation-delay: 8s;
+        }
+
+        .floating-text:nth-child(6) {
+            top: 58%;
+            right: -390px;
+            color: rgba(251, 146, 60, 1);
+            animation: textFloatLeft 13s ease-in-out infinite;
+            animation-delay: 10s;
+        }
+
+        .floating-text:nth-child(7) {
+            top: 68%;
+            left: -370px;
+            color: rgba(168, 85, 247, 1);
+            animation: textFloatRight 14s ease-in-out infinite;
+            animation-delay: 12s;
+        }
+
+        .floating-text:nth-child(8) {
+            top: 78%;
+            right: -410px;
+            color: rgba(34, 197, 94, 1);
+            animation: textFloatLeft 12s ease-in-out infinite;
+            animation-delay: 14s;
+        }
+
+        .floating-text:nth-child(9) {
+            top: 88%;
+            left: -400px;
+            color: rgba(59, 130, 246, 1);
+            animation: textFloatRight 16s ease-in-out infinite;
+            animation-delay: 16s;
+        }
+
+        .floating-text:nth-child(10) {
+            top: 12%;
+            right: -360px;
+            color: rgba(236, 72, 153, 1);
+            animation: textFloatLeft 11s ease-in-out infinite;
+            animation-delay: 18s;
+        }
+
+        .floating-text:nth-child(11) {
+            top: 22%;
+            left: -430px;
+            color: rgba(14, 165, 233, 1);
+            animation: textFloatRight 13s ease-in-out infinite;
+            animation-delay: 20s;
+        }
+
+        .floating-text:nth-child(12) {
+            top: 32%;
+            right: -380px;
+            color: rgba(245, 158, 11, 1);
+            animation: textFloatLeft 15s ease-in-out infinite;
+            animation-delay: 22s;
+        }
+
+        .floating-text:nth-child(13) {
+            top: 42%;
+            left: -360px;
+            color: rgba(99, 102, 241, 1);
+            animation: textFloatRight 17s ease-in-out infinite;
+            animation-delay: 24s;
+        }
+
+        .floating-text:nth-child(14) {
+            top: 52%;
+            right: -400px;
+            color: rgba(34, 197, 94, 1);
+            animation: textFloatLeft 14s ease-in-out infinite;
+            animation-delay: 26s;
+        }
+
+        .floating-text:nth-child(15) {
+            top: 62%;
+            left: -390px;
+            color: rgba(239, 68, 68, 1);
+            animation: textFloatRight 19s ease-in-out infinite;
+            animation-delay: 28s;
+        }
+
+        .floating-text:nth-child(16) {
+            top: 72%;
+            right: -370px;
+            color: rgba(168, 85, 247, 1);
+            animation: textFloatLeft 12s ease-in-out infinite;
+            animation-delay: 30s;
+        }
+
+        .floating-text:nth-child(17) {
+            top: 82%;
+            left: -410px;
+            color: rgba(6, 182, 212, 1);
+            animation: textFloatRight 16s ease-in-out infinite;
+            animation-delay: 32s;
+        }
+
+        .floating-text:nth-child(18) {
+            top: 92%;
+            right: -350px;
+            color: rgba(251, 191, 36, 1);
+            animation: textFloatLeft 18s ease-in-out infinite;
+            animation-delay: 34s;
+        }
+
+        /* LOGO漂浮动画 */
+        .floating-logo {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: auto;
+            z-index: 1;
+            opacity: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .floating-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .floating-logo:hover {
+            transform: scale(1.2) !important;
+            animation-play-state: paused !important;
+        }
+
+        .floating-logo.paused {
+            animation-play-state: paused !important;
+        }
+
+        .floating-logo:nth-child(13) {
+            top: 5%;
+            left: -100px;
+            animation: logoFloatRight 12s ease-in-out infinite;
+            animation-delay: 0.5s;
+        }
+
+        .floating-logo:nth-child(14) {
+            top: 15%;
+            right: -100px;
+            animation: logoFloatLeft 14s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+
+        .floating-logo:nth-child(15) {
+            top: 25%;
+            left: -100px;
+            animation: logoFloatRight 16s ease-in-out infinite;
+            animation-delay: 5.5s;
+        }
+
+        .floating-logo:nth-child(16) {
+            top: 35%;
+            right: -100px;
+            animation: logoFloatLeft 10s ease-in-out infinite;
+            animation-delay: 8s;
+        }
+
+        .floating-logo:nth-child(17) {
+            top: 45%;
+            left: -100px;
+            animation: logoFloatRight 18s ease-in-out infinite;
+            animation-delay: 10.5s;
+        }
+
+        .floating-logo:nth-child(18) {
+            top: 55%;
+            right: -100px;
+            animation: logoFloatLeft 13s ease-in-out infinite;
+            animation-delay: 13s;
+        }
+
+        .floating-logo:nth-child(19) {
+            top: 65%;
+            left: -100px;
+            animation: logoFloatRight 15s ease-in-out infinite;
+            animation-delay: 15.5s;
+        }
+
+        .floating-logo:nth-child(20) {
+            top: 75%;
+            right: -100px;
+            animation: logoFloatLeft 17s ease-in-out infinite;
+            animation-delay: 18s;
+        }
+
+        .floating-logo:nth-child(21) {
+            top: 85%;
+            left: -100px;
+            animation: logoFloatRight 11s ease-in-out infinite;
+            animation-delay: 20.5s;
+        }
+
+        .floating-logo:nth-child(22) {
+            top: 95%;
+            right: -100px;
+            animation: logoFloatLeft 19s ease-in-out infinite;
+            animation-delay: 23s;
+        }
+
+        .floating-logo:nth-child(23) {
+            top: 12%;
+            left: -100px;
+            animation: logoFloatRight 14s ease-in-out infinite;
+            animation-delay: 25.5s;
+        }
+
+        .floating-logo:nth-child(24) {
+            top: 38%;
+            right: -100px;
+            animation: logoFloatLeft 16s ease-in-out infinite;
+            animation-delay: 28s;
+        }
+
+        @keyframes logoFloatRight {
+            0% {
+                transform: translateX(0) translateY(0) scale(0.3);
+                opacity: 0;
+            }
+            15% {
+                transform: translateX(20vw) translateY(-25px) scale(1.8);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateX(40vw) translateY(15px) scale(0.5);
+                opacity: 0.8;
+            }
+            45% {
+                transform: translateX(60vw) translateY(-35px) scale(2.2);
+                opacity: 0.9;
+            }
+            60% {
+                transform: translateX(80vw) translateY(10px) scale(0.4);
+                opacity: 0.7;
+            }
+            75% {
+                transform: translateX(90vw) translateY(-20px) scale(1.6);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(calc(100vw + 450px)) translateY(0) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes logoFloatLeft {
+            0% {
+                transform: translateX(0) translateY(0) scale(0.4);
+                opacity: 0;
+            }
+            15% {
+                transform: translateX(-20vw) translateY(20px) scale(1.9);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateX(-40vw) translateY(-30px) scale(0.6);
+                opacity: 0.7;
+            }
+            45% {
+                transform: translateX(-60vw) translateY(25px) scale(2.4);
+                opacity: 0.9;
+            }
+            60% {
+                transform: translateX(-80vw) translateY(-15px) scale(0.3);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateX(-90vw) translateY(18px) scale(1.7);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateX(calc(-100vw - 480px)) translateY(0) scale(0.25);
+                opacity: 0;
+            }
+        }
+
+
+        .presentation-wrapper {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide-container {
+            width: 1123px;
+            height: 794px;
+            background: rgba(30, 41, 59, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px var(--shadow-heavy);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-primary);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 容器内代码漂浮效果 */
+        .slide-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                /* 微妙的光晕效果 */
+                radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.02) 0%, transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(16, 185, 129, 0.02) 0%, transparent 30%);
+            background-size: 300px 300px, 300px 300px;
+            pointer-events: none;
+            z-index: 1;
+            animation: gentleGlow 40s ease-in-out infinite;
+        }
+
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-green), var(--primary-blue), var(--accent-cyan), transparent);
+            animation: topBorderFlow 4s ease-in-out infinite;
+        }
+
+        @keyframes topBorderFlow {
+            0%, 100% {
+                background: linear-gradient(90deg, transparent, var(--primary-green), var(--primary-blue), var(--accent-cyan), transparent);
+            }
+            50% {
+                background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), var(--primary-green), transparent);
+            }
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            padding: 40px 50px;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            z-index: 3;
+        }
+
+
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .slide h1 {
+            font-size: 3.8rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            line-height: 1.1;
+            position: relative;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.3);
+            letter-spacing: -0.02em;
+            animation: slideInFromTop 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+            z-index: 2;
+        }
+
+        .slide h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue), var(--accent-cyan));
+            border-radius: 2px;
+        }
+
+        .slide h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(16, 185, 129, 0.2);
+            letter-spacing: -0.01em;
+            animation: slideInFromTop 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+            z-index: 2;
+        }
+
+        .slide h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+            border-radius: 1px;
+        }
+
+        .brand-slogan {
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 6px rgba(6, 182, 212, 0.3), 0 0 15px rgba(6, 182, 212, 0.2);
+            letter-spacing: 0.02em;
+            animation: fadeInUp 1.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+        }
+
+        .brand-tagline {
+            font-size: 1.3rem;
+            color: var(--text-accent);
+            font-weight: 600;
+            margin-bottom: 35px;
+            text-shadow: 0 1px 4px rgba(148, 163, 184, 0.2);
+            line-height: 1.4;
+            animation: fadeInUp 1.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-card) 100%);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+            width: 100%;
+            max-width: 950px;
+            animation: scaleIn 0.8s ease-out 0.5s both;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue), var(--accent-cyan));
+            border-radius: 16px 16px 0 0;
+        }
+
+        .mission-vision {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .mission-vision .item h4 {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .mission-vision .item p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 15px 0;
+        }
+
+        .horizontal-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            width: 100%;
+            max-width: 1020px;
+            margin: 15px 0;
+            justify-content: space-between;
+        }
+
+        .horizontal-card {
+            flex: 1;
+            min-width: 180px;
+            max-width: 220px;
+            position: relative;
+            min-height: 140px;
+        }
+
+        .horizontal-card::after {
+            content: '{}';
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: auto;
+            height: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 10px;
+            color: rgba(16, 185, 129, 0.2);
+            opacity: 0.4;
+            pointer-events: none;
+            animation: codeGlow 3s ease-in-out infinite;
+        }
+
+        .product-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            animation: slideInFromBottom 0.6s ease-out calc(0.5s + var(--delay, 0s)) both;
+            height: 100%;
+            min-height: 180px;
+        }
+
+        .product-features {
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: 6px;
+            padding: 8px;
+            margin: 8px 0;
+            border-left: 2px solid var(--primary-green);
+        }
+
+        .product-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .product-features li {
+            font-size: 0.75rem;
+            color: var(--text-accent);
+            margin: 3px 0;
+            padding-left: 12px;
+            position: relative;
+        }
+
+        .product-features li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--primary-green);
+            font-size: 0.7rem;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-accent);
+            background: var(--bg-card);
+            box-shadow: 0 10px 25px var(--shadow-medium);
+        }
+
+        .product-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+        }
+
+        .product-card .icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .product-card h4 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.01em;
+        }
+
+        .product-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            animation: none;
+        }
+
+        .product-card .use-case {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin: 0;
+        }
+
+        .advantages-list {
+            list-style: none;
+            text-align: left;
+            max-width: 1000px;
+            width: 100%;
+            animation: slideInFromLeft 0.8s ease-out 0.7s both;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 10px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            width: 100%;
+            max-width: 1150px;
+            margin: 15px 0;
+        }
+
+        .team-member {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            animation: slideInFromBottom 0.6s ease-out calc(0.5s + var(--delay, 0s)) both;
+        }
+
+        .team-member::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .team-member::after {
+            content: '</>';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: auto;
+            height: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 9px;
+            color: rgba(59, 130, 246, 0.2);
+            opacity: 0.4;
+            pointer-events: none;
+            animation: codeGlow 4s ease-in-out infinite;
+        }
+
+        .team-member:hover::before {
+            opacity: 1;
+        }
+
+        .team-member:hover {
+            transform: translateY(-3px);
+            border-color: var(--border-accent);
+            background: var(--bg-card);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .dapplink-logo {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-blocks {
+            position: relative;
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-block {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 3px;
+        }
+
+        .logo-block.top-left {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 0;
+        }
+
+        .logo-block.top-right {
+            width: 20px;
+            height: 20px;
+            top: 0;
+            right: 0;
+        }
+
+        .logo-block.bottom-left {
+            width: 20px;
+            height: 20px;
+            bottom: 0;
+            left: 0;
+        }
+
+        .logo-block.bottom-right {
+            width: 20px;
+            height: 20px;
+            bottom: 0;
+            right: 0;
+        }
+
+        .logo-block.center {
+            width: 15px;
+            height: 15px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .logo-connections {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .connection-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 1px;
+        }
+
+        .connection-line.horizontal {
+            width: 30px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .connection-line.vertical {
+            width: 2px;
+            height: 30px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .team-member:hover .team-avatar {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .team-member h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .team-member p {
+            font-size: 0.9rem;
+            color: var(--text-accent);
+            margin: 0;
+            animation: none;
+        }
+
+        .member-bio {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-top: 8px;
+            text-align: left;
+            background: rgba(16, 185, 129, 0.03);
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 2px solid var(--primary-green);
+        }
+
+        .advantages-list li {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-left: 4px solid var(--primary-green);
+            border-radius: 8px;
+            padding: 15px 18px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            animation: slideInFromLeft 0.5s ease-out calc(0.6s + var(--item-delay, 0s)) both;
+        }
+
+        .advantages-list li:hover {
+            border-left-color: var(--primary-blue);
+            background: var(--bg-card);
+            transform: translateX(4px);
+        }
+
+        .advantages-list li .number {
+            background: var(--primary-green);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .advantages-list li .content {
+            flex: 1;
+        }
+
+        .advantages-list li .content h5 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .advantages-list li .content p {
+            font-size: 0.85rem;
+            color: var(--text-accent);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .ecosystem-showcase {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+            max-width: 950px;
+            animation: slideInFromRight 0.8s ease-out 0.6s both;
+        }
+
+        .ecosystem-showcase::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-cyan), var(--primary-blue));
+            border-radius: 10px 10px 0 0;
+        }
+
+        .partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 18px;
+        }
+
+        .partner-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+            min-height: 140px;
+        }
+
+        .partner-logo {
+            width: 100%;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .logo-placeholder {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .partner-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            transition: all 0.3s ease;
+        }
+
+        .manta-logo {
+            filter: brightness(1.1);
+        }
+
+        .cpchain-logo {
+            object-fit: contain;
+        }
+
+        .datamining-logo {
+            object-fit: contain;
+            transform: scale(2);
+        }
+
+        .parapack-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .fishcake-logo {
+            object-fit: contain;
+        }
+
+        .dubai-logo {
+            object-fit: contain;
+        }
+
+        .partner-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .partner-name {
+            font-size: 1rem;
+            color: var(--primary-green);
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .partner-item:hover {
+            border-color: var(--primary-green);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .partner-item:hover .partner-logo {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: var(--primary-green);
+        }
+
+        .partner-item:hover .logo-placeholder {
+            color: var(--primary-green);
+        }
+
+        .partner-item:hover .partner-logo-img {
+            transform: scale(1.05);
+            filter: brightness(1.1) saturate(1.1);
+        }
+
+        .case-studies {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin: 18px 0;
+        }
+
+        .case-study {
+            background: var(--bg-card);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: left;
+            position: relative;
+            animation: slideInFromBottom 0.6s ease-out calc(0.7s + var(--case-delay, 0s)) both;
+        }
+
+        .case-study::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--primary-blue));
+            border-radius: 10px 10px 0 0;
+        }
+
+        .case-study h5 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .case-study .tech-stack {
+            font-size: 0.75rem;
+            color: var(--primary-green);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .case-study .metrics {
+            font-size: 0.8rem;
+            color: var(--text-accent);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px 0;
+        }
+
+        .social-card {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            animation: slideInFromBottom 0.6s ease-out calc(0.5s + var(--social-delay, 0s)) both;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .social-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            filter: grayscale(0.3);
+            transition: all 0.3s ease;
+        }
+
+        .social-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-green), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-card:hover::before {
+            opacity: 1;
+        }
+
+        .social-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-accent);
+            background: var(--bg-card);
+        }
+
+        .social-card:hover .social-icon {
+            filter: grayscale(0);
+            transform: scale(1.1);
+        }
+
+        .social-card .platform {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .social-card .link {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .roadmap-timeline {
+            max-width: 850px;
+            width: 100%;
+            margin: 25px 0;
+        }
+
+        .timeline-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            border-left: 4px solid var(--primary-green);
+            border-radius: 8px;
+            padding: 22px;
+            margin: 18px 0;
+            position: relative;
+            animation: slideInFromLeft 0.5s ease-out calc(0.5s + var(--timeline-delay, 0s)) both;
+        }
+
+        .timeline-item.medium-term {
+            border-left-color: var(--primary-blue);
+        }
+
+        .timeline-item h4 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-item ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .timeline-item li {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .timeline-item li::before {
+            content: '▸';
+            color: var(--primary-green);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .navigation-controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            border-color: var(--primary-green);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            border-color: var(--border-primary);
+        }
+
+        .slide-indicator {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: var(--bg-secondary);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-primary);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue), var(--accent-cyan));
+            transition: width 0.4s ease;
+        }
+
+        /* 动画定义 */
+        @keyframes slideInFromTop {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.96);
+                filter: blur(1px);
+            }
+            60% {
+                opacity: 0.8;
+                transform: translateY(2px) scale(1.01);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes slideInFromBottom {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+                filter: blur(1px);
+            }
+            60% {
+                opacity: 0.8;
+                transform: translateY(-2px) scale(1.01);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes slideInFromLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-40px) scale(0.94);
+                filter: blur(1px);
+            }
+            70% {
+                opacity: 0.9;
+                transform: translateX(3px) scale(1.02);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes slideInFromRight {
+            0% {
+                opacity: 0;
+                transform: translateX(40px) scale(0.94);
+                filter: blur(1px);
+            }
+            70% {
+                opacity: 0.9;
+                transform: translateX(-3px) scale(1.02);
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(25px) scale(0.96);
+            }
+            70% {
+                opacity: 0.9;
+                transform: translateY(-1px) scale(1.01);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes scaleIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            60% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes floatNFT {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes rotateNFT {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes floatBTC {
+            0%, 100% { transform: translateX(0px) scale(1); }
+            50% { transform: translateX(5px) scale(1.1); }
+        }
+
+        @keyframes pulseBTC {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.2); }
+        }
+
+        @keyframes gentleGlow {
+            0%, 100% {
+                background-position: 0% 0%, 0% 0%;
+                opacity: 0.3;
+            }
+            50% {
+                background-position: 100% 100%, 50% 50%;
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes textFloatRight {
+            0% {
+                transform: translateX(0) translateY(0) scale(0.5);
+                opacity: 0;
+            }
+            15% {
+                transform: translateX(20vw) translateY(-25px) scale(1.3);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateX(40vw) translateY(15px) scale(0.7);
+                opacity: 0.8;
+            }
+            45% {
+                transform: translateX(60vw) translateY(-35px) scale(1.5);
+                opacity: 0.9;
+            }
+            60% {
+                transform: translateX(80vw) translateY(10px) scale(0.6);
+                opacity: 0.7;
+            }
+            75% {
+                transform: translateX(90vw) translateY(-20px) scale(1.2);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateX(calc(100vw + 450px)) translateY(0) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        @keyframes textFloatLeft {
+            0% {
+                transform: translateX(0) translateY(0) scale(0.6);
+                opacity: 0;
+            }
+            15% {
+                transform: translateX(-20vw) translateY(20px) scale(1.4);
+                opacity: 0.4;
+            }
+            30% {
+                transform: translateX(-40vw) translateY(-30px) scale(0.8);
+                opacity: 0.7;
+            }
+            45% {
+                transform: translateX(-60vw) translateY(25px) scale(1.6);
+                opacity: 0.9;
+            }
+            60% {
+                transform: translateX(-80vw) translateY(-15px) scale(0.5);
+                opacity: 0.8;
+            }
+            75% {
+                transform: translateX(-90vw) translateY(18px) scale(1.3);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translateX(calc(-100vw - 480px)) translateY(0) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+
+        @keyframes verticalFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+
+        @keyframes logoGlow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        @keyframes codeGlow {
+            0%, 100% {
+                opacity: 0.2;
+                text-shadow: 0 0 5px currentColor;
+            }
+            50% {
+                opacity: 0.4;
+                text-shadow: 0 0 10px currentColor;
+            }
+        }
+
+        @keyframes rotateWeb3 {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1200px) {
+            .slide-container {
+                width: 95vw;
+                height: 70vh;
+                max-width: 1123px;
+                max-height: 794px;
+            }
+
+            .slide {
+                padding: 30px 35px;
+            }
+
+            .slide h1 {
+                font-size: 3rem;
+            }
+            .slide h2 {
+                font-size: 1.8rem;
+            }
+
+            .horizontal-card {
+                min-width: 160px;
+                max-width: 200px;
+                min-height: 130px;
+            }
+
+            .partner-logo {
+                height: 70px;
+            }
+
+            .logo-placeholder {
+                font-size: 0.9rem;
+            }
+
+            .partner-name {
+                font-size: 0.9rem;
+            }
+
+            .floating-code {
+                font-size: 10px;
+            }
+
+            .team-avatar {
+                width: 70px;
+                height: 70px;
+            }
+
+            .logo-blocks {
+                width: 42px;
+                height: 42px;
+            }
+
+            .logo-block.top-left,
+            .logo-block.top-right,
+            .logo-block.bottom-left,
+            .logo-block.bottom-right {
+                width: 16px;
+                height: 16px;
+            }
+
+            .logo-block.center {
+                width: 12px;
+                height: 12px;
+            }
+
+            .connection-line.horizontal {
+                width: 25px;
+            }
+
+            .connection-line.vertical {
+                height: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95vw;
+                height: 85vh;
+            }
+
+            .slide {
+                padding: 25px 20px;
+            }
+
+            .slide h1 {
+                font-size: 2.5rem;
+                margin-bottom: 12px;
+            }
+            .slide h2 {
+                font-size: 1.6rem;
+                margin-bottom: 15px;
+            }
+
+            .brand-slogan {
+                font-size: 1.2rem;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .advantages-list {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .mission-vision {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .case-studies {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .social-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .team-member:nth-child(6) {
+                grid-column: 1 / -1;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .horizontal-grid {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .horizontal-card {
+                min-width: auto;
+                max-width: none;
+                min-height: 120px;
+            }
+
+            .partner-item {
+                padding: 12px;
+                gap: 6px;
+                min-height: 120px;
+            }
+
+            .partner-logo {
+                height: 60px;
+            }
+
+            .logo-placeholder {
+                font-size: 0.8rem;
+            }
+
+            .partner-name {
+                font-size: 0.85rem;
+            }
+
+            .navigation-controls {
+                bottom: 15px;
+                gap: 12px;
+            }
+
+            .nav-button {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+
+            .floating-code {
+                font-size: 8px;
+                opacity: 0.6;
+            }
+
+            .team-avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            .logo-blocks {
+                width: 36px;
+                height: 36px;
+            }
+
+            .logo-block.top-left,
+            .logo-block.top-right,
+            .logo-block.bottom-left,
+            .logo-block.bottom-right {
+                width: 14px;
+                height: 14px;
+            }
+
+            .logo-block.center {
+                width: 10px;
+                height: 10px;
+            }
+
+            .connection-line.horizontal {
+                width: 22px;
+            }
+
+            .connection-line.vertical {
+                height: 22px;
+            }
+
+            .floating-code:nth-child(n+7) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .team-member:nth-child(6) {
+                grid-column: 1;
+                max-width: none;
+                margin: 0;
+            }
+
+            .team-avatar {
+                width: 50px;
+                height: 50px;
+            }
+
+            .logo-blocks {
+                width: 30px;
+                height: 30px;
+            }
+
+            .logo-block.top-left,
+            .logo-block.top-right,
+            .logo-block.bottom-left,
+            .logo-block.bottom-right {
+                width: 12px;
+                height: 12px;
+            }
+
+            .logo-block.center {
+                width: 8px;
+                height: 8px;
+            }
+
+            .connection-line.horizontal {
+                width: 18px;
+                height: 1px;
+            }
+
+            .connection-line.vertical {
+                width: 1px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 漂浮代码片段 -->
+    <div class="floating-text">一键部署应用链（Layer2, Layer3 和 Cosmos 应用链）</div>
+    <div class="floating-text">一键部署 Layer2 快速验证网络</div>
+    <div class="floating-text">一站式 RWA & PayFi 技术解决方案</div>
+    <div class="floating-text">一键部署钱包（含中心化钱包，去中心化钱包和 MPC 托管系统）</div>
+    <div class="floating-text">一键部署可组合 Dapp </div>
+    <div class="floating-text">企业级区块链基础设施解决方案</div>
+    <div class="floating-text">智能合约自动化部署</div>
+    <div class="floating-text">跨链资产桥接解决方案</div>
+    <div class="floating-text">DeFi 协议一键集成</div>
+    <div class="floating-text">NFT 市场快速搭建</div>
+    <div class="floating-text">去中心化身份验证系统</div>
+    <div class="floating-text">链上治理投票机制</div>
+    <div class="floating-text">多链资产管理平台</div>
+    <div class="floating-text">Web3 社交网络构建</div>
+    <div class="floating-text">去中心化存储解决方案</div>
+    <div class="floating-text">链上数据分析工具</div>
+    <div class="floating-text">元宇宙基础设施服务</div>
+    <div class="floating-text">区块链游戏开发套件</div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+    <div class="floating-logo"><img src="dapplink_logo_bai.png" alt="DappLink Logo"></div>
+    <div class="floating-logo"><img src="dapplink_W.png" alt="DappLink W Logo"></div>
+
+    <div class="presentation-wrapper">
+        <div class="slide-container">
+            <div class="slide-indicator">
+                <span id="current">1</span> / <span id="total">9</span>
+            </div>
+            <div class="progress-bar" id="progress"></div>
+
+            <!-- 幻灯片 1: 品牌介绍 -->
+            <div class="slide active">
+                <h1>DappLink</h1>
+                <div class="brand-slogan">构建 Web3 中间件，赋能区块链未来</div>
+                <div class="brand-tagline">Building Web3 Middleware to Empower the Future of Blockchain</div>
+                <div class="hero-card">
+                    <h3 style="color: var(--primary-green); font-size: 1.6rem; margin-bottom: 18px; animation: none;">Web3 中间件基础设施平台</h3>
+                    <div class="mission-vision">
+                        <div class="item">
+                            <h4>使命</h4>
+                            <p>让区块链项目的开发、部署与运营，像搭积木一样模块化、可组合</p>
+                        </div>
+                        <div class="item">
+                            <h4>愿景</h4>
+                            <p>构建全球领先的 Web3 基础设施网络，帮助企业或项目方快速落地 Web3 项目</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 22px;">
+                        <div style="background: linear-gradient(135deg, var(--primary-green), var(--primary-blue)); color: white; padding: 10px 20px; border-radius: 20px; display: inline-block; font-size: 1rem; font-weight: 600;">
+                            一键快速部署未来
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 2: 产品与服务体系 -->
+            <div class="slide">
+                <h2>产品与服务体系</h2>
+                <p style="font-size: 1rem; color: var(--text-accent); margin-bottom: 15px; animation: fadeInUp 0.8s ease-out 0.4s both;">一站式 Web3 中间件平台，覆盖项目全生命周期</p>
+                <div class="product-grid">
+                    <div class="product-card" style="--delay: 0s">
+                        <h4>一键部署钱包系统</h4>
+                        <p>军工级别安全体系的钱包系统，基于CloadHSM/TEE/去中心化等安全的密钥管理方式</p>
+                        <div class="product-features">
+                            <ul>
+                                <li>MPC 资管系统</li>
+                                <li>MPC C 端钱包</li>
+                                <li>中心化交易所钱包</li>
+                                <li>去中心化 HD 钱包</li>
+                                <li>钱包 Gas Oracle 系统</li>
+                                <li>多签钱包/抽象账户钱包</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="product-card" style="--delay: 0.1s">
+                        <h4>一键部署可组合 Dapp</h4>
+                        <p>像搭积木一样构建模块化可组合的去中心化应用系统</p>
+                        <div class="product-features">
+                            <ul>
+                                <li>NFT/RWA/PayFi</li>
+                                <li>质押借贷</li>
+                                <li>交易聚合器</li>
+                                <li>Dex(Swap)/去中心化衍生品</li>
+                                <li>Bridge/CCIP</li>
+                                <li>去中心化随机数/价格预言机</li>
+                                <li>GameFi/SocialFi/EventFi/链上保险</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="product-card" style="--delay: 0.2s">
+                        <h4>一键部署 L1 & L2 & L3 公链</h4>
+                        <p>自研的公链产品体系，高安全性，高可用, 支持万级 TPS </p>
+                        <div class="product-features">
+                            <ul>
+                                <li>L1 底层公链</li>
+                                <li>L2 应用链</li>
+                                <li>L3 应用链</li>
+                                <li>基于 OpStack 和 Cosmos 的应用链</li>
+                                <li>跨链互操做协议</li>
+                                <li>集成多路 DA RollUp</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="product-card" style="--delay: 0.3s">
+                        <h4>L2 & L3 快速验证网络搭建</h4>
+                        <p>多协议质押模型，安全可靠，基于 Merkle 树的 Zk 证明体系</p>
+                        <div class="product-features">
+                            <ul>
+                                <li>多协议质押模型，集成 Bitcoin 和 Ethereum 安全体系 </li>
+                                <li>基于 Merkle 树的 Zk 证明体系</li>
+                                <li>可以快速集成到 ZK 和 OP 的 RollUp 协议</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="product-card" style="--delay: 0.4s">
+                        <h4>一站式 RWA & PayFi 技术解决方案</h4>
+                        <p>实物资产上链、法币支付、合规接口、资产确权、资产发行</p>
+                        <div class="product-features">
+                            <ul>
+                                <li>资产代币化协议</li>
+                                <li>KYC/AML合规框架</li>
+                                <li>RWA 做市商体系</li>
+                                <li>国内联盟链资产确权</li>
+                                <li>海外公链资产发行</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 3: 技术优势 -->
+            <div class="slide">
+                <h2>技术优势与差异化</h2>
+                <div class="advantages-list">
+                    <li style="--item-delay: 0s">
+                        <div class="number">1</div>
+                        <div class="content">
+                            <h5>快速部署体验</h5>
+                            <p>无需复杂部署脚本，<strong style="color: var(--primary-green);">快速</strong>上线完整 Web3 项目<br>
+                            SaaS + API 支持，开发者友好，支持多语言 SDK<br>
+                            <span style="color: var(--accent-cyan); font-size: 0.8rem;">快速部署 快速上线</span></p>
+                        </div>
+                    </li>
+                    <li style="--item-delay: 0.1s">
+                        <div class="number">2</div>
+                        <div class="content">
+                            <h5>跨链与兼容性强</h5>
+                            <p>兼容所有主流链、Cosmos 系统<br>
+                            可定制 Layer2/Layer3，支持异构链部署<br>
+                            <span style="color: var(--accent-cyan); font-size: 0.8rem;">支持链数: 100+ | 跨链成功率: 100%</span></p>
+                        </div>
+                    </li>
+                    <li style="--item-delay: 0.2s">
+                        <div class="number">3</div>
+                        <div class="content">
+                            <h5>托管与安全体系完善</h5>
+                            <p>内建钱包托管与风控模块，满足合规与企业级需求<br>
+                            支持 MPC、多签、权限管理等机制<br>
+                            <span style="color: var(--accent-cyan); font-size: 0.8rem;">安全等级: 军工级别 | 密钥管理方式: CloadHSM, TEE, 去中心化密钥存储</span></p>
+                        </div>
+                    </li>
+                    <li style="--item-delay: 0.3s">
+                        <div class="number">4</div>
+                        <div class="content">
+                            <h5>模块化架构，灵活扩展</h5>
+                            <p>所有功能皆为可组合模块，按需插拔<br>
+                            社区开发者可接入插件市场，扩展功能生态<br>
+                            <span style="color: var(--accent-cyan); font-size: 0.8rem;">可用模块: 500+ | 插件生态: 100+</span></p>
+                        </div>
+                    </li>
+                    <li style="--item-delay: 0.4s">
+                        <div class="number">5</div>
+                        <div class="content">
+                            <h5>性能与成本优化</h5>
+                            <p>快速验证网络 + ZK 技术，提升吞吐，最大限度降低提现时间<br>
+                            多节点部署，弹性资源调度，高 TPS 公链构建<br>
+                            <span style="color: var(--accent-cyan); font-size: 0.8rem;">TPS峰值: 50,000+ | 按需构建: 根据上层业务推导底层实现 </span></p>
+                        </div>
+                    </li>
+                </div>
+            </div>
+
+            <!-- 幻灯片 4: 生态合作伙伴 -->
+            <div class="slide">
+                <h2>生态合作与伙伴</h2>
+                <p style="font-size: 1rem; color: var(--text-accent); margin-bottom: 15px;">与全球顶级Web3项目深度合作，构建开放生态</p>
+                <div class="horizontal-grid">
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="Manta Network.jpg" alt="Manta Network" class="partner-logo-img manta-logo">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">Manta Network</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="CpChain.png" alt="CpChain" class="partner-logo-img cpchain-logo">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">CpChain</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="DataM.png" alt="DataMining" class="partner-logo-img datamining-logo">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">DataMining</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="Parapakogo.svg" alt="Parapack" class="partner-logo-img parapack-logo">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">Parapack</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="FishCake.jpg" alt="FishCake" class="partner-logo-img fishcake-logo">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">FishCake</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="TheWeb3.svg" alt="The Web3" class="partner-logo-img">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">The Web3</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="The Web3 Book.png" alt="TheWeb3 Book" class="partner-logo-img">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">TheWeb3 Book</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="TheWeb3 Security Labs.png" alt="TheWeb3 Security Labs" class="partner-logo-img">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">TheWeb3 Security Labs</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="RootHash.png" alt="RootHash" class="partner-logo-img">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">RootHash</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="partner-item">
+                            <div class="partner-logo">
+                                <img src="ROOTDATA.webp" alt="ROOTDATA" class="partner-logo-img">
+                            </div>
+                            <div class="partner-info">
+                                <div class="partner-name">ROOTDATA</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 30px; font-size: 0.9rem; color: var(--text-accent);">
+                    <div style="text-align: center;"><strong style="color: var(--primary-green);">50+</strong><br>合作伙伴</div>
+                    <div style="text-align: center;"><strong style="color: var(--accent-cyan);">15</strong><br>国家地区</div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 5: 应用案例 -->
+            <div class="slide">
+                <h2>部分成功案例</h2>
+                <p style="font-size: 1rem; color: var(--text-accent); margin-bottom: 15px;">真实项目案例，验证平台强大能力</p>
+                <div class="horizontal-grid">
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0s">
+                            <h5>Manta 快速验证网络</h5>
+                            <div class="tech-stack">双协议质押模型 + 降低一层提现时间 + 快速部署</div>
+                            <div style="background: rgba(16, 185, 129, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> 依赖 L1 的安全行 + 双协议质押/双网络协议 + ZK 承诺签名
+                            </div>
+                            <div class="metrics">
+                                • 可以接入任意协议，含 Symbiotic/Babylon/Eigenlayer 等质押协议<br>
+                                • <strong style="color: var(--primary-green);">1 天上可以上线</strong>，可部署在 <strong>ZK RollUp & OP RollUp </strong><br>
+                                • 以及 <strong style="color: var(--accent-cyan);"> Layer3 网络</strong><br>
+                                • 目前已经集成到 Manta 主网
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0.1s">
+                            <h5> CpChain </h5>
+                            <div class="tech-stack">L1 公链 + 跨链桥 + Swap + Oracle</div>
+                            <div style="background: rgba(59, 130, 246, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> 高性能 L1 + 无缝跨链互操作 + 去中心化可信任的 Oracle
+                            </div>
+                            <div class="metrics">
+                                • 上线时间缩短至 <strong style="color: var(--primary-green);">1天</strong><br>
+                                • 节省开发资源 <strong>50%</strong><br>
+                                • 支持 <strong style="color: var(--accent-cyan);">10000+ TPS</strong><br>
+                                • 支持 <strong>主流链</strong> 跨链
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0.2s">
+                            <h5>FishCake</h5>
+                            <div class="tech-stack">活动挖矿 + 质押奖励 + Web3 钱包</div>
+                            <div style="background: rgba(6, 182, 212, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> 钱包 + 质押奖励 + 活动挖矿
+                            </div>
+                            <div class="metrics">
+                                • 基础用户和商家用户权限隔离<br>
+                                • 发起活动就等于挖矿<br>
+                                • 集成 Web3 钱包<br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0.2s">
+                            <h5>Parapack</h5>
+                            <div class="tech-stack">Web3 钱包 + Dapp 浏览器 +  Web3 直播 + Web3 活动平台</div>
+                            <div style="background: rgba(6, 182, 212, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> Web3 钱包 + Dapp 浏览器 + Web3 活动平台
+                            </div>
+                            <div class="metrics">
+                                • 集成 Web3 钱包<br>
+                                • 泛娱乐的 Web3 生活平台<br>
+                                • Web3 数字货币行情<br>
+                                • Dapp 浏览器<br>
+                                • Web3 任务平台<br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="horizontal-grid">
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0.1s">
+                            <h5> RootHash </h5>
+                            <div class="tech-stack">集 Web3 钱包 + RWA + PayFi 和量化一体化平台</div>
+                            <div style="background: rgba(59, 130, 246, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> RWA + PayFi + Web3 资管 + 量化
+                            </div>
+                            <div class="metrics">
+                                • 传统量化策略与 AI 量化策略结合 <strong style="color: var(--primary-green);"></strong><br>
+                                • 基于 AI-Agent 安全易用的 Web3 钱包<br>
+                                • Web3 快速支付体验产品
+                                • 基于 MPC 的资金托管体系
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="case-study" style="--case-delay: 0s">
+                            <h5>DataMining</h5>
+                            <div class="tech-stack">Web3 数据平台，区块链世界的天眼查</div>
+                            <div style="background: rgba(16, 185, 129, 0.05); padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 0.7rem;">
+                                <strong>核心技术:</strong> 数据抓取与清洗 + AI任务流 + AI 选币 + 任务平台
+                            </div>
+                            <div class="metrics">
+                                • <br>
+                                • <strong style="color: var(--primary-green);">链上链下数据抓取</strong>，按照业务做 <strong>链下数据清洗 </strong><br>
+                                • <strong style="color: var(--accent-cyan);"> Web3 数据结合 AI 大模型，让 Web3 投资更简单</strong><br>
+                                • 对数字资产行情进行全方位分析，让用户快速检索到自己想要检索的信息
+                            </div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card"></div>
+                    <div class="horizontal-card"></div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 6: 用户群体 -->
+            <div class="slide">
+                <h2>面向用户群体</h2>
+                <div class="horizontal-grid">
+                    <div class="horizontal-card">
+                        <div class="product-card" style="--delay: 0s">
+                            <h4>Web3 企业与开发者</h4>
+                            <p><strong>典型需求：</strong>快速上线、高安全性、低成本和齐全的生态工具</p>
+                            <div class="use-case">解决方案：一键部署钱包，Dapp 和公链技术解决方案、SDK、模板库</div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="product-card" style="--delay: 0.1s">
+                            <h4>初创团队</h4>
+                            <p><strong>典型需求：</strong>无需大规模开发投入</p>
+                            <div class="use-case">解决方案：DappLink 钱包，公链和 Dapp SaaS 服务、按照业务进行模块组合</div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="product-card" style="--delay: 0.2s">
+                            <h4>Web2 企业</h4>
+                            <p><strong>典型需求：</strong>上链转型、合规、安全托管</p>
+                            <div class="use-case">解决方案：MPC 托管钱包、RWA 和 PayFi 技术解决方案</div>
+                        </div>
+                    </div>
+                    <div class="horizontal-card">
+                        <div class="product-card" style="--delay: 0.3s">
+                            <h4>生态组织/基金会</h4>
+                            <p><strong>典型需求：</strong>推动链生态扩展，需定制解决方案</p>
+                            <div class="use-case">解决方案：钱包，Dapp 和应用链快速部署、一体化基础设施</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <div style="background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-radius: 10px; padding: 18px; max-width: 580px; margin: 0 auto;">
+                        <h4 style="color: var(--primary-green); margin-bottom: 10px; font-size: 1.1rem;">核心价值主张</h4>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.95rem; line-height: 1.4;">
+                            <strong>DappLink = Web3中间件 + 快速部署 + 模块化可组合 + 企业级服务</strong><br>
+                            无论你是开发者、创业者还是企业，DappLink 都是你进入链上的最佳的选择
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 7: 核心团队 -->
+            <div class="slide">
+                <h2>核心团队</h2>
+                <p style="font-size: 1rem; color: var(--text-accent); margin-bottom: 15px; animation: fadeInUp 0.8s ease-out 0.4s both;">专业的Web3技术团队，丰富的区块链项目经验</p>
+                <div class="team-grid">
+                    <div class="team-member" style="--delay: 0s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>Seek</h4>
+                        <p>DappLink 创始人</p>
+                        <div class="member-bio">
+                            The Web3 社区发起人，前 Mantle 架构师，Bybit 核心开发。曾就职于 Mantle、Bybit、霍比特、昆仑万维、Bixin、ChainUp、神州数字等知名 Web3 项目和中信银行；成功推动了 DappLink 与 Manta, CpChain 和 Parapack 等知名项目达成合作。
+                        </div>
+                    </div>
+                    <div class="team-member" style="--delay: 0.1s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>Keane</h4>
+                        <p>DappLink CTO</p>
+                        <div class="member-bio">
+                            前 Mantle 区块链开发工程师，拥有5年区块链经验，从 0 到 1 参与 Mantle 的设计、开发和上线。现任 DappLink CTO，快速最终验证网络和一键部署 Dapp 技术解决方案的主要设计者。
+                        </div>
+                    </div>
+                    <div class="team-member" style="--delay: 0.2s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>Sinco</h4>
+                        <p>首席技术专家</p>
+                        <div class="member-bio">
+                            AI + Web3 双领域技术专家，6年技术研发经验。在 AI 算法工程化、大规模系统架构、区块链技术应用等方面拥有深厚造诣，专注于 AI + Web3 融合创新。
+                        </div>
+                    </div>
+                    <div class="team-member" style="--delay: 0.3s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>Felix</h4>
+                        <p>联合创始人兼商务负责人</p>
+                        <div class="member-bio">
+                            毕业于新南威尔士大学（全球Top 20）本科及硕士学位，深耕Web3领域4年，成功推动与多家顶级公链及交易所的战略合作。
+                        </div>
+                    </div>
+                    <div class="team-member" style="--delay: 0.4s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>小火龙</h4>
+                        <p>技术总监</p>
+                        <div class="member-bio">
+                            毕业于华南师范大学，DappLink 技术总监。曾任宁波银行数据开发工程师项目经理，西藏自治区医疗保健项目数据中台项目经理。
+                        </div>
+                    </div>
+                    <div class="team-member" style="--delay: 0.5s">
+                        <div class="team-avatar">
+                            <img src="dapplink.png" alt="Dapplink Logo">
+                        </div>
+                        <h4>Anita</h4>
+                        <p>商务 BD</p>
+                        <div class="member-bio">
+                            曾在知名新能源汽车公司主导产品规划与落地；后转战 Web3 领域，担任产品经理兼商务拓展，主导多项 DeFi、NFT、RWA 及跨链中间件产品从 0 到 1 完整上线。擅长战略合作与生态建设、用户体验优化及链上数据驱动增长。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 8: 发展路线图 -->
+            <div class="slide">
+                <h2>发展愿景与路线图</h2>
+                <div class="roadmap-timeline">
+                    <div class="timeline-item" style="--timeline-delay: 0s">
+                        <h4>短期目标（2025年内）</h4>
+                        <ul>
+                            <li>推动 DappLink 与更多海内外企业合作，共同打造 Web3 生态版图</li>
+                            <li>打造 Web3 区块链世界天眼查，围绕 DappLink 中间件加大投资力度</li>
+                            <li>继续开阔海内外市场，推动 100+ 企业或者项目方与 DappLink 建立战略合作关系</li>
+                        </ul>
+                    </div>
+                    <div class="timeline-item medium-term" style="--timeline-delay: 0.2s">
+                        <h4>中期目标（2026-2027）</h4>
+                        <ul>
+                            <li>推动 DappLink 与 1000+ 企业或者项目方达成战略合作</li>
+                            <li>完善 DappLink 中间件一键部署系统，与一键部署应用变成现实</li>
+                            <li>打造 RWA & PayFi 标准化解决方案</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 25px;">
+                    <div style="background: linear-gradient(135deg, var(--primary-green), var(--primary-blue)); color: white; padding: 18px; border-radius: 14px; max-width: 480px; margin: 0 auto;">
+                        <h4 style="margin-bottom: 8px; font-size: 1.3rem;">终极愿景</h4>
+                        <p style="margin: 0; font-size: 1rem; font-weight: 500;">
+                            让 Web3 不再遥远<br>
+                            让每家企业与任意开发快速构建属于你的链 · Dapp · 钱包 · 生态版图
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 幻灯片 9: 联系方式 -->
+            <div class="slide">
+                <h2>社交媒体与联系方式</h2>
+
+                <!-- 核心价值主张 - 移到上方 -->
+                <div style="margin: 20px 0 35px; text-align: center;">
+                    <div style="background: var(--bg-tertiary); border: 1px solid var(--border-primary); border-left: 4px solid var(--primary-green); border-radius: 12px; padding: 25px; max-width: 650px; margin: 0 auto;">
+                        <h3 style="color: var(--text-primary); margin-bottom: 15px; font-size: 1.4rem;">Web3 基础设施的"乐高积木"</h3>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 1.1rem; line-height: 1.5;">
+                            <strong style="color: var(--primary-green);">让区块链开发像拼图一样简单</strong><br>
+                            加入 DappLink，一起构建 Web3 的未来！
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 社交媒体链接 - 移到下方 -->
+                <div class="social-grid">
+                    <div class="social-card" style="--social-delay: 0s">
+                        <div class="social-icon"><img src="guangwang.png" alt="官网" style="width: 24px; height: 24px; object-fit: contain;"></div>
+                        <div class="platform">官网</div>
+                        <div class="link">dapplink.xyz/zh</div>
+                    </div>
+                    <div class="social-card" style="--social-delay: 0.1s">
+                        <div class="social-icon"><img src="X.webp" alt="X" style="width: 24px; height: 24px; object-fit: contain;"></div>
+                        <div class="platform">Twitter</div>
+                        <div class="link">@0xdapplink</div>
+                    </div>
+                    <div class="social-card" style="--social-delay: 0.2s">
+                        <div class="social-icon"><img src="git.jpeg" alt="GitHub" style="width: 24px; height: 24px; object-fit: contain;"></div>
+                        <div class="platform">Github</div>
+                        <div class="link">dapplink-labs</div>
+                    </div>
+                    <div class="social-card" style="--social-delay: 0.3s">
+                        <div class="social-icon"><img src="Telegram.jpg" alt="Telegram" style="width: 24px; height: 24px; object-fit: contain;"></div>
+                        <div class="platform">Telegram</div>
+                        <div class="link">DappLink 社群</div>
+                    </div>
+                    <div class="social-card" style="--social-delay: 0.4s">
+                        <div class="social-icon"><img src="medium.png" alt="Medium" style="width: 24px; height: 24px; object-fit: contain;"></div>
+                        <div class="platform">Medium</div>
+                        <div class="link">@0xappslink</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation-controls">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">
+            ← 上一页
+        </button>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">
+            下一页 →
+        </button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total').textContent = totalSlides;
+
+        function updateProgressBar() {
+            const progress = ((currentSlideIndex + 1) / totalSlides) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function resetAnimations(slide) {
+            const animatedElements = slide.querySelectorAll('[style*="animation"]');
+            animatedElements.forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight; // 触发重排
+                el.style.animation = null;
+            });
+        }
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i !== index) {
+                    slide.style.opacity = '0';
+                    slide.style.transform = 'translateY(20px) scale(0.98)';
+                    slide.style.filter = 'blur(1px)';
+                }
+            });
+
+            setTimeout(() => {
+                slides[index].classList.add('active');
+                slides[index].style.opacity = '1';
+                slides[index].style.transform = 'translateY(0) scale(1)';
+                slides[index].style.filter = 'blur(0px)';
+
+                // 重置并触发动画
+                resetAnimations(slides[index]);
+            }, 150);
+
+            document.getElementById('current').textContent = index + 1;
+            updateProgressBar();
+
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                currentSlideIndex = newIndex;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    changeSlide(1);
+                    break;
+                case 'ArrowLeft':
+                    changeSlide(-1);
+                    break;
+                case 'Home':
+                    currentSlideIndex = 0;
+                    showSlide(currentSlideIndex);
+                    break;
+                case 'End':
+                    currentSlideIndex = totalSlides - 1;
+                    showSlide(currentSlideIndex);
+                    break;
+            }
+        });
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const swipeLength = touchStartX - touchEndX;
+
+            if (Math.abs(swipeLength) > swipeThreshold) {
+                if (swipeLength > 0) {
+                    changeSlide(1);
+                } else {
+                    changeSlide(-1);
+                }
+            }
+        }
+
+        showSlide(0);
+
+        // 监听来自父页面的消息
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'goToSlide') {
+                currentSlideIndex = event.data.slideIndex;
+                showSlide(currentSlideIndex);
+                // 通知父页面幻灯片已切换
+                window.parent.postMessage({
+                    type: 'slideChanged',
+                    slideIndex: currentSlideIndex
+                }, '*');
+            }
+        });
+
+        // 页面加载完成后初始化动画
+        window.addEventListener('load', function() {
+            resetAnimations(slides[0]);
+        });
+
+        // 文字和LOGO漂浮点击暂停功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const floatingTexts = document.querySelectorAll('.floating-text');
+            const floatingLogos = document.querySelectorAll('.floating-logo');
+
+            // 文字点击暂停2秒
+            floatingTexts.forEach(text => {
+                text.addEventListener('click', function() {
+                    this.classList.add('paused');
+                    setTimeout(() => {
+                        this.classList.remove('paused');
+                    }, 2000);
+                });
+            });
+
+            // LOGO点击暂停2秒
+            floatingLogos.forEach(logo => {
+                logo.addEventListener('click', function() {
+                    this.classList.add('paused');
+                    setTimeout(() => {
+                        this.classList.remove('paused');
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
