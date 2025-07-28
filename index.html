@@ -2558,27 +2558,34 @@
 
         let touchStartX = 0;
         let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
 
         document.addEventListener('touchstart', function(event) {
             touchStartX = event.changedTouches[0].screenX;
+            touchStartY = event.changedTouches[0].screenY;
         });
 
         document.addEventListener('touchend', function(event) {
             touchEndX = event.changedTouches[0].screenX;
+            touchEndY = event.changedTouches[0].screenY;
             handleSwipe();
         });
 
         function handleSwipe() {
             const swipeThreshold = 50;
-            const swipeLength = touchStartX - touchEndX;
+            const horizontalSwipe = touchStartX - touchEndX;
+            const verticalSwipe = touchStartY - touchEndY;
 
-            if (Math.abs(swipeLength) > swipeThreshold) {
-                if (swipeLength > 0) {
+            // 只有当水平滑动距离大于垂直滑动距离时，才认为是水平滑动
+            if (Math.abs(horizontalSwipe) > swipeThreshold && Math.abs(horizontalSwipe) > Math.abs(verticalSwipe)) {
+                if (horizontalSwipe > 0) {
                     changeSlide(1);
                 } else {
                     changeSlide(-1);
                 }
             }
+            // 垂直滑动不触发页面切换，让浏览器处理正常的滚动
         }
 
         showSlide(0);
